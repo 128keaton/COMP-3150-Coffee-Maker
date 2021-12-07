@@ -26,7 +26,6 @@ public:
         if (shouldBeHeating && !this->isHeating) {
             this->updateState();
             this->startHeating(hotplateStatusCallback);
-            this->updateState();
         } else if (!shouldBeHeating && this->isHeating) {
             this->isHeating = false;
             this->updateState();
