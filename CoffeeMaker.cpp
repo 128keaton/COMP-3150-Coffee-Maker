@@ -181,8 +181,8 @@ void CoffeeMaker::updateHotplateState() {
             option::FontStyles{std::vector<FontStyle>{FontStyle::bold}}
     };
 
-    this->hotPlate.updateState(this->carafe, [&bar, &createPostfixText](double val) {
-        bar.set_progress((float) val);
+    this->hotPlate.updateState(this->carafe, [&bar, &createPostfixText, this](double val) {
+        bar.set_progress((float) ((val / this->hotPlate.getMaxTemperature()) * 100));
         bar.set_option(option::PostfixText{createPostfixText()});
     });
 
