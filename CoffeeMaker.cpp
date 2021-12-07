@@ -185,4 +185,6 @@ void CoffeeMaker::updateHotplateState() {
         bar.set_progress((float) val);
         bar.set_option(option::PostfixText{createPostfixText()});
     });
+
+    CoffeeMaker::resetConsole();
 }
