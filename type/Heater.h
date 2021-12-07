@@ -27,8 +27,8 @@ struct Heater {
     * Starts the heating process (calling a fake temperature generation function)
     * @param statusCallback - Lambda with a double value representing the temperature
     */
-    void startHeating(const function<void(double)> &statusCallback, double speedModifier = 10) {
-        double speed = this->maxTemperature / speedModifier;
+    void startHeating(const function<void(double)> &statusCallback) {
+        double speed = this->maxTemperature / 10;
         double scaledTemperature = this->maxTemperature * 10;
         double finalScaledTemperature = scaledTemperature * 40;
 
@@ -38,16 +38,17 @@ struct Heater {
             // Calculate our temperature (takes our linear scale and creates a curve)
             double nextTemp = getEmulatedTemp((float) t, 0, (float) speed, (float) finalScaledTemperature);
 
+            // Update the value
+            this->temperatureValue = nextTemp;
+
             if (statusCallback != nullptr) {
                 // Call the lambda function with our next temperature
                 statusCallback(nextTemp);
             }
 
-            // Update the Readable value
-            this->temperatureValue = nextTemp;
 
             // Sleep for "realness"
-            millisleep(75 * speed);
+            millisleep(75 * (int)speed);
         }
 
         // Finally, set our heaterRelay to off (false)

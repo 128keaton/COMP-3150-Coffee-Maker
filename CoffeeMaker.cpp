@@ -172,7 +172,7 @@ void CoffeeMaker::updateHotplateState() {
     };
 
     BlockProgressBar bar{
-            option::BarWidth{this->hotPlate.getMaxTemperature()},
+            option::BarWidth{100},
             option::Start{"["},
             option::End{" ]"},
             option::PostfixText{createPostfixText()},
