@@ -15,9 +15,6 @@ const double HEATER_MAX_TEMP = 100.0;
 
 class Boiler : public Fillable, public Heatable, public StateChanges<BoilerState> {
 public:
-    using StateChanges<BoilerState>::stateUpdated;
-    using StateChanges<BoilerState>::getState;
-
     explicit Boiler(const function<void(BoilerState)> &stateChanged, double maxCapacity = 300) :
             Heatable([this](HeaterState heaterState) {
                 const BoilerState currentState = this->getState();
@@ -52,6 +49,9 @@ public:
                 }
         );
     }
+
+    using StateChanges<BoilerState>::stateUpdated;
+    using StateChanges<BoilerState>::getState;
 
     bool contentsHeated() {
         return this->getHeaterState().currentTemperature == HEATER_MAX_TEMP;
