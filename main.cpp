@@ -1,7 +1,6 @@
 #include <iostream>
 #include <string>
 #include <functional>
-
 #include "CoffeeMaker.h"
 
 using std::cout, std::endl, std::cin, std::string, std::to_string;

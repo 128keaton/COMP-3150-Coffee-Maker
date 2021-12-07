@@ -28,6 +28,9 @@ public:
         if (shouldBeHeating && !this->isHeating) {
             using namespace std::chrono_literals;
 
+            this->isHeating = true;
+            this->updateState();
+
             auto heaterFunction = async(std::launch::async, [this] {
                 this->startHeating(nullptr, 25);
                 this->updateState();

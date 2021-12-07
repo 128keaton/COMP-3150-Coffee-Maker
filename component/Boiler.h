@@ -22,6 +22,10 @@ public:
         return this->maxCapacity;
     }
 
+    double & getMaxTemperature() {
+        return this->maxTemperature;
+    }
+
     bool contentsHeated() {
         return this->temperatureValue == this->maxTemperature;
     }

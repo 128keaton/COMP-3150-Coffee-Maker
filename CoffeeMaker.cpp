@@ -3,9 +3,6 @@
 //
 
 #include "CoffeeMaker.h"
-#include "component/Boiler.h"
-#include "helpers/ProgressBar.h"
-
 
 CoffeeMaker::CoffeeMaker() {
     this->currentState = WAITING;
@@ -46,10 +43,28 @@ CoffeeMakerState *CoffeeMaker::getState() {
 }
 
 void CoffeeMaker::fillBoiler(const function<void(string)> &capacityInfoCallback) {
-    this->boiler.fill([this](double val) {
-        bool isLast = val == this->boiler.getMaxCapacity();
-        ProgressBar::percentage(val, this->boiler.getMaxCapacity(), "Filled", isLast);
+    using namespace indicators;
+
+    auto createPostfixText = [this]() -> string {
+        return "Filled " + this->boiler.getReadableBoilerCapacityInfo();
+    };
+
+    BlockProgressBar bar{
+            option::BarWidth{100},
+            option::Start{"["},
+            option::End{" ]"},
+            option::PostfixText{createPostfixText()},
+            option::ForegroundColor{Color::cyan},
+            option::ShowPercentage(false),
+            option::FontStyles{std::vector<FontStyle>{FontStyle::bold}}
+    };
+
+    this->boiler.fill([&bar, this, &createPostfixText](double val) {
+        bar.set_progress((float) ((val / this->boiler.getMaxCapacity()) * 100));
+        bar.set_option(option::PostfixText{createPostfixText()});
     }, 20);
+
+    CoffeeMaker::resetConsole();
 
     if (capacityInfoCallback != nullptr) {
         capacityInfoCallback(this->boiler.getReadableBoilerCapacityInfo());
@@ -75,9 +90,28 @@ void CoffeeMaker::replaceCarafe() {
 }
 
 void CoffeeMaker::startBoiling(const function<void(string)> &heaterInfoCallback) {
-    this->boiler.startBoiler([](double val) {
-        ProgressBar::temperature(val, 100.0, "Boiler Temperature", (val == 100.0));
+    using namespace indicators;
+
+    auto createPostfixText = [this]() -> string {
+        return "Boiler Temperature " + this->boiler.getReadableBoilerHeaterInfo();
+    };
+
+    BlockProgressBar bar{
+            option::BarWidth{this->boiler.getMaxTemperature()},
+            option::Start{"["},
+            option::End{" ]"},
+            option::PostfixText{createPostfixText()},
+            option::ForegroundColor{Color::red},
+            option::ShowPercentage(false),
+            option::FontStyles{std::vector<FontStyle>{FontStyle::bold}}
+    };
+
+    this->boiler.startBoiler([&bar, &createPostfixText](double val) {
+        bar.set_progress((float) val);
+        bar.set_option(option::PostfixText{createPostfixText()});
     });
+
+    CoffeeMaker::resetConsole();
 
     if (heaterInfoCallback != nullptr) {
         heaterInfoCallback(this->boiler.getReadableBoilerHeaterInfo());
@@ -90,13 +124,25 @@ void CoffeeMaker::brew() {
     const double maxCapacity = this->carafe.getMaxCapacity();
     double fillAmount = 10;
 
+    using namespace indicators;
+
+    BlockProgressBar bar{
+            option::BarWidth{maxCapacity},
+            option::Start{"["},
+            option::End{" ]"},
+            option::PostfixText{"Brewing..."},
+            option::ForegroundColor{Color::magenta},
+            option::ShowPercentage(true),
+            option::FontStyles{std::vector<FontStyle>{FontStyle::bold}}
+    };
+
     while (this->carafe.getCurrentCapacity() < this->carafe.getMaxCapacity()) {
-        ProgressBar::percentage((int) (this->carafe.getCurrentCapacity() + fillAmount), (int) maxCapacity, "Brewing...",
-                                (this->carafe.getCurrentCapacity() + fillAmount) >= 100);
+        bar.set_progress((float) (this->carafe.getCurrentCapacity() + fillAmount));
         this->carafe.brewFrom((Tank &) (boiler), fillAmount);
         usleep(15 * 5000 * 10);
     }
 
+    CoffeeMaker::resetConsole();
     this->updateState();
 }
 
@@ -112,4 +158,8 @@ double CoffeeMaker::availableCoffee() {
 
 string CoffeeMaker::getHotPlateInfo() {
     return this->hotPlate.getReadableHotPlateInfo();
+}
+
+void CoffeeMaker::resetConsole() {
+    cout << termcolor::reset << endl;
 }

@@ -12,6 +12,7 @@
 #include "component/Carafe.h"
 #include "component/HotPlate.h"
 #include "state/CoffeeMakerState.h"
+#include "helpers/Indicators.hpp"
 
 using std::cout, std::endl, std::string, std::function;
 
@@ -42,6 +43,8 @@ private:
     Boiler boiler = Boiler();
     Carafe carafe = Carafe();
     HotPlate hotPlate = HotPlate();
+
+    static void resetConsole();
 };
 
 
