@@ -5,61 +5,46 @@
 #ifndef COFFEEMAKER_BOILER_H
 #define COFFEEMAKER_BOILER_H
 
-#include "../type/Fillable.h"
-#include "../type/Readable.h"
-#include "../type/Heatable.h"
-#include "../state/BoilerState.h"
-#include "../type/StateChanges.h"
+#include "../type/Tank.h"
+#include "../type/Heater.h"
 
-const double HEATER_MAX_TEMP = 100.0;
 
-class Boiler : public Fillable, public Heatable, public StateChanges<BoilerState> {
+class Boiler : private Tank, private Heater {
 public:
-    using StateChanges<BoilerState>::stateUpdated;
-    using StateChanges<BoilerState>::getState;
 
-    explicit Boiler(const function<void(BoilerState)> &stateChanged, double maxCapacity = 300) :
-            Fillable(maxCapacity, [this](double waterLevel) {
-                HeaterState state = this->getHeaterState();
+    explicit Boiler(double maxCapacity = 300, double maxTemperature = 100.0) : Tank(maxCapacity),  Heater(maxTemperature) {}
 
-                this->stateUpdated(
-                        {
-                                state.heating,
-                                (waterLevel == 0.0 ? 0.0 : state.currentTemperature),
-                                waterLevel
-                        }
-                );
-            }),
-            Heatable([this](HeaterState heaterState) {
-                const BoilerState currentState = this->getState();
+    double & getWaterLevel() {
+        return this->currentCapacity;
+    }
 
-                this->stateUpdated(
-                        {
-                                heaterState.heating,
-                                heaterState.currentTemperature,
-                                currentState.waterLevel
-                        }
-                );
-
-                this->set(currentState.waterLevel);
-            }), StateChanges<BoilerState>(stateChanged) {
-
-        this->stateUpdated(
-                {
-                        false,
-                        0.0,
-                        0.0
-                }
-        );
+    double & getMaxCapacity() {
+        return this->maxCapacity;
     }
 
     bool contentsHeated() {
-        return this->getHeaterState().currentTemperature == HEATER_MAX_TEMP;
+        return this->temperatureValue == this->maxTemperature;
+    }
+
+    bool & heaterOn() {
+        return this->isHeating;
     }
 
     void fill(const function<void(double)> &statusCallback, int fillSpeed) override {
-        Fillable::fill(statusCallback, fillSpeed);
-        this->heaterSensor.set(0.0);
+        Tank::fill(statusCallback, fillSpeed);
+        Heater::reset();
+    }
+
+    void startBoiler(const function<void(double)> &statusCallback) {
+        Heater::startHeating(statusCallback);
+    }
+
+    string getReadableBoilerCapacityInfo() {
+        return Tank::getReadableStatus();
+    }
+
+    string getReadableBoilerHeaterInfo() {
+        return Heater::getReadableStatus();
     }
 };
 

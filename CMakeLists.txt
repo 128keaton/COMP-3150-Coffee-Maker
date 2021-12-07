@@ -3,4 +3,4 @@ project(CoffeeMaker)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(CoffeeMaker main.cpp type/Readable.h CoffeeMaker.cpp CoffeeMaker.h type/Fillable.h component/Boiler.h state/BoilerState.h component/Carafe.h state/CarafeState.h type/StateChanges.h state/CoffeeMakerState.h type/Heatable.h state/HeaterState.h helpers/ProgressBar.h)
+add_executable(CoffeeMaker main.cpp CoffeeMaker.cpp CoffeeMaker.h component/Boiler.h component/Carafe.h state/CoffeeMakerState.h helpers/ProgressBar.h type/Heater.h type/Tank.h component/HotPlate.h helpers/StringFormatter.h)
