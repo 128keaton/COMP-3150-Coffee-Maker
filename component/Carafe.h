@@ -5,44 +5,50 @@
 #ifndef COFFEEMAKER_CARAFE_H
 #define COFFEEMAKER_CARAFE_H
 
-#include "../type/Fillable.h"
-#include "../type/Readable.h"
-#include "../state/CarafeState.h"
-#include "../type/StateChanges.h"
+#include "../type/Tank.h"
 
-class Carafe : public Fillable, public StateChanges<CarafeState> {
+class Carafe : private Tank{
 public:
-    explicit Carafe(const function<void(CarafeState)> &stateChanged) : Fillable(100, [this](double coffeeLevel) {
-        const bool carafeAvailable = this->carafeSensor.get();
+    explicit Carafe(double carafeCapacity = 100.0, double availableCoffee = 0.0): Tank(carafeCapacity, availableCoffee) {}
 
-        this->stateUpdated(
-                {
-                        carafeAvailable,
-                        coffeeLevel,
-                }
-        );
-    }), StateChanges<CarafeState>(stateChanged) {}
+    double & getCurrentCapacity() {
+        return this->currentCapacity;
+    }
 
-    double & currentCapacity() {
-        return this->get();
+    double & getMaxCapacity() {
+        return this->maxCapacity;
     }
 
     void replace() {
-        this->carafeSensor.set(true);
+        this->available = true;
     }
 
     void remove() {
-        this->carafeSensor.set(false);
+        this->available = false;
     }
 
-    Readable<bool> carafeSensor = Readable<bool>(false, [this](bool isAvailable) {
-        this->stateUpdated(
-                {
-                        isAvailable,
-                        this->get(),
-                }
-        );
-    });
+    bool & isAvailable() {
+        return this->available;
+    }
+
+    bool isEmpty()  {
+        return this->currentCapacity == 0.0;
+    }
+
+    void empty() override {
+        Tank::empty();
+    }
+
+    void brewFrom(Tank &other, double amount) {
+        Tank::addFrom(other, amount);
+    }
+
+    void pour(double amount) {
+        Tank::take(amount);
+    }
+
+private:
+    bool available = true;
 };
 
 #endif //COFFEEMAKER_CARAFE_H

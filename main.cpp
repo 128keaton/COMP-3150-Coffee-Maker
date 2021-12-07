@@ -1,9 +1,9 @@
 #include <iostream>
+#include <string>
 #include <functional>
-
 #include "CoffeeMaker.h"
 
-using std::cout, std::endl, std::cin;
+using std::cout, std::endl, std::cin, std::string, std::to_string;
 
 string getReadableState(CoffeeMakerState state);
 
@@ -11,7 +11,7 @@ int runCoffeeMaker(CoffeeMaker *coffeeMaker);
 
 bool promptUser(const string &message);
 
-void printPrefix(const string &message, const string &prefix, bool newline = true);
+void printPrefix(const string &message, const string &prefix, bool newline = true, const string &component = "");
 
 void performCorrectiveAction(CoffeeMakerState &state, CoffeeMaker *coffeeMaker);
 
@@ -23,6 +23,10 @@ int main() {
 
 int runCoffeeMaker(CoffeeMaker *coffeeMaker) {
     CoffeeMakerState *currentState = coffeeMaker->getState();
+
+    coffeeMaker->hotplateStateUpdated = [](const string &hotplateState) {
+        printPrefix(hotplateState, "INFO", true, "Hot Plate");
+    };
 
     while (*currentState != READY) {
         performCorrectiveAction(*currentState, coffeeMaker);
@@ -39,6 +43,7 @@ int runCoffeeMaker(CoffeeMaker *coffeeMaker) {
 
         printPrefix("Pouring a cup of coffee for you...", "ACTION");
         coffeeMaker->pourCup();
+        printPrefix(to_string(coffeeMaker->availableCoffee()) + " coffee remaining", "INFO");
     }
 
 
@@ -54,8 +59,8 @@ void performCorrectiveAction(CoffeeMakerState &state, CoffeeMaker *coffeeMaker) 
         printPrefix(message, "ISSUE");
     };
 
-    const auto printInfo = [](const string &message) {
-        printPrefix(message, "INFO");
+    const auto printInfo = [](const string &message, const string &component = "") {
+        printPrefix(message, "INFO", true, component);
     };
 
     const auto printAction = [](const string &message) {
@@ -65,31 +70,36 @@ void performCorrectiveAction(CoffeeMakerState &state, CoffeeMaker *coffeeMaker) 
     switch (state) {
         case WAITING:
         case READY:
+            printInfo(getReadableState(state));
+            printInfo(coffeeMaker->getHotPlateInfo(), "Hot Plate");
+            break;
         case BOILING:
-            cout << getReadableState(state) << endl;
+            printInfo(getReadableState(state));
             break;
         case BOILER_LOW:
             printIssue(getReadableState(state));
             printAction("Filling boiler...");
             coffeeMaker->fillBoiler([&printInfo](const string &boilerCapacityInfo) {
-                printInfo(boilerCapacityInfo);
+                printInfo(boilerCapacityInfo, "Boiler");
             });
             break;
         case CARAFE_FULL:
             printIssue(getReadableState(state));
             printAction("Emptying carafe...");
             coffeeMaker->emptyCarafe();
+            printInfo(coffeeMaker->getHotPlateInfo(), "Hot Plate");
             break;
         case CARAFE_MISSING:
             printIssue(getReadableState(state));
             printAction("Replacing carafe...");
             coffeeMaker->replaceCarafe();
+            printInfo(coffeeMaker->getHotPlateInfo(), "Hot Plate");
             break;
         case BOILER_COOL:
             printIssue(getReadableState(state));
             printAction("Boiling water..");
             coffeeMaker->startBoiling([&printInfo](const string &boilerHeaterInfo) {
-                printInfo(boilerHeaterInfo);
+                printInfo(boilerHeaterInfo, "Boiler");
             });
             break;
     }
@@ -137,8 +147,14 @@ bool promptUser(const string &message) {
     return true;
 }
 
-void printPrefix(const string &message, const string &prefix, bool newline) {
-    cout << "[" << prefix << "]: " << message;
+void printPrefix(const string &message, const string &prefix, bool newline, const string &component) {
+    cout << "[" << prefix;
+
+    if (!component.empty()) {
+        cout << "][" << component;
+    }
+
+    cout << "]: " << message;
 
     if (newline) {
         cout << endl;

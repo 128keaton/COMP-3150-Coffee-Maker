@@ -8,10 +8,11 @@
 #include <iostream>
 #include <string>
 #include <functional>
-#include "type/Readable.h"
 #include "component/Boiler.h"
 #include "component/Carafe.h"
+#include "component/HotPlate.h"
 #include "state/CoffeeMakerState.h"
+#include "helpers/Indicators.hpp"
 
 using std::cout, std::endl, std::string, std::function;
 
@@ -20,6 +21,7 @@ public:
     CoffeeMaker();
 
     CoffeeMakerState * getState();
+    void updateState();
 
     void fillBoiler(const function<void(string)> &capacityInfoCallback = nullptr);
     void startBoiling(const function<void(string)> &heaterInfoCallback = nullptr);
@@ -31,20 +33,19 @@ public:
 
     void brew();
 
+    string getHotPlateInfo();
     double availableCoffee();
-private:
 
+    function<void(string)> hotplateStateUpdated = nullptr;
+private:
     CoffeeMakerState currentState;
 
-    CoffeeMakerState updateState(CarafeState carafeState, BoilerState boilerState);
+    Boiler boiler = Boiler();
+    Carafe carafe = Carafe();
+    HotPlate hotPlate = HotPlate();
 
-    Boiler boiler = Boiler([this](BoilerState state) {
-        this->currentState = this->updateState(this->carafe.getState(), state);
-    });
-
-    Carafe carafe = Carafe([this](CarafeState state) {
-        this->currentState = this->updateState(state, this->boiler.getState());
-    });
+    void updateHotplateState();
+    static void resetConsole();
 };
 
 
