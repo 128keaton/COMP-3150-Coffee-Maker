@@ -1,4 +1,4 @@
-CXX = g++ -std=c++20  -pthread
+CXX = g++ -std=c++2a  -pthread
 
 all: clean CoffeeMaker
 
