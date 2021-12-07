@@ -99,6 +99,7 @@ void performCorrectiveAction(CoffeeMakerState &state, CoffeeMaker *coffeeMaker) 
 string getReadableState(CoffeeMakerState state) {
     switch (state) {
         case WAITING:
+        default:
             return "Waiting for other components";
         case READY:
             return "Ready to brew!";
