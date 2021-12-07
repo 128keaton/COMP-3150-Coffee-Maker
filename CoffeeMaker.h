@@ -44,6 +44,7 @@ private:
     Carafe carafe = Carafe();
     HotPlate hotPlate = HotPlate();
 
+    void updateHotplateState();
     static void resetConsole();
 };
 

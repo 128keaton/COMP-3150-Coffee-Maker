@@ -17,7 +17,7 @@ CoffeeMaker::CoffeeMaker() {
 }
 
 void CoffeeMaker::updateState() {
-    this->hotPlate.updateState(this->carafe);
+    this->updateHotplateState();
 
     auto determineState = [this]() -> CoffeeMakerState {
         if (!this->carafe.isAvailable()) {
@@ -162,4 +162,27 @@ string CoffeeMaker::getHotPlateInfo() {
 
 void CoffeeMaker::resetConsole() {
     cout << termcolor::reset << endl;
+}
+
+void CoffeeMaker::updateHotplateState() {
+    using namespace indicators;
+
+    auto createPostfixText = [this]() -> string {
+        return "Hot Plate " + this->hotPlate.getReadableHotPlateInfo();
+    };
+
+    BlockProgressBar bar{
+            option::BarWidth{this->hotPlate.getMaxTemperature()},
+            option::Start{"["},
+            option::End{" ]"},
+            option::PostfixText{createPostfixText()},
+            option::ForegroundColor{Color::red},
+            option::ShowPercentage(false),
+            option::FontStyles{std::vector<FontStyle>{FontStyle::bold}}
+    };
+
+    this->hotPlate.updateState(this->carafe, [&bar, &createPostfixText](double val) {
+        bar.set_progress((float) val);
+        bar.set_option(option::PostfixText{createPostfixText()});
+    });
 }

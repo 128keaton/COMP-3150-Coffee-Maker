@@ -22,7 +22,7 @@ public:
 
     HotPlate() : Heater(50.0) {};
 
-    void updateState(Carafe &carafe) {
+    void updateState(Carafe &carafe, const function<void(double)> hotplateStatusCallback) {
         bool shouldBeHeating = (carafe.isAvailable() && !carafe.isEmpty() && this->temperatureValue < this->maxTemperature);
 
         if (shouldBeHeating && !this->isHeating) {
@@ -31,8 +31,8 @@ public:
             this->isHeating = true;
             this->updateState();
 
-            auto heaterFunction = async(std::launch::async, [this] {
-                this->startHeating(nullptr, 25);
+            auto heaterFunction = async(std::launch::async, [this, &hotplateStatusCallback] {
+                this->startHeating(hotplateStatusCallback, 25);
                 this->updateState();
                 return false;
             });
@@ -46,6 +46,10 @@ public:
 
     [[maybe_unused]] string getReadableHotPlateInfo() {
         return this->getReadableStatus();
+    }
+
+    double & getMaxTemperature() {
+        return this->maxTemperature;
     }
 
 private:
