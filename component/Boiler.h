@@ -19,17 +19,6 @@ public:
     using StateChanges<BoilerState>::getState;
 
     explicit Boiler(const function<void(BoilerState)> &stateChanged, double maxCapacity = 300) :
-            Fillable(maxCapacity, [this](double waterLevel) {
-                HeaterState state = this->getHeaterState();
-
-                this->stateUpdated(
-                        {
-                                state.heating,
-                                (waterLevel == 0.0 ? 0.0 : state.currentTemperature),
-                                waterLevel
-                        }
-                );
-            }),
             Heatable([this](HeaterState heaterState) {
                 const BoilerState currentState = this->getState();
 
@@ -42,8 +31,19 @@ public:
                 );
 
                 this->set(currentState.waterLevel);
-            }), StateChanges<BoilerState>(stateChanged) {
+            }),
+            Fillable(maxCapacity, [this](double waterLevel) {
+                HeaterState state = this->getHeaterState();
 
+                this->stateUpdated(
+                        {
+                                state.heating,
+                                (waterLevel == 0.0 ? 0.0 : state.currentTemperature),
+                                waterLevel
+                        }
+                );
+            }),
+            StateChanges<BoilerState>(stateChanged) {
         this->stateUpdated(
                 {
                         false,
