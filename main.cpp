@@ -3,6 +3,10 @@
 #include <functional>
 #include "CoffeeMaker.h"
 
+#if defined(WIN32)
+#include <wincon.h>
+#endif
+
 using std::cout, std::endl, std::cin, std::string, std::to_string;
 
 string getReadableState(CoffeeMakerState state);
@@ -16,6 +20,10 @@ void printPrefix(const string &message, const string &prefix, bool newline = tru
 void performCorrectiveAction(CoffeeMakerState &state, CoffeeMaker *coffeeMaker);
 
 int main() {
+    #if defined(WIN32)
+    SetConsoleOutputCP(CP_UTF8);
+    #endif
+
     CoffeeMaker coffeeMaker = CoffeeMaker();
 
     return runCoffeeMaker(&coffeeMaker);

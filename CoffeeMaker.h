@@ -5,9 +5,11 @@
 #ifndef COFFEEMAKER_COFFEEMAKER_H
 #define COFFEEMAKER_COFFEEMAKER_H
 
+
 #include <iostream>
 #include <string>
 #include <functional>
+#include "sleep.h"
 #include "component/Boiler.h"
 #include "component/Carafe.h"
 #include "component/HotPlate.h"

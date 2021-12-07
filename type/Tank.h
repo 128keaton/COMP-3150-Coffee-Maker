@@ -5,7 +5,8 @@
 #ifndef COFFEEMAKER_TANK_H
 #define COFFEEMAKER_TANK_H
 
-#include <unistd.h>
+
+#include "../sleep.h"
 #include <string>
 #include <functional>
 #include "../helpers/StringFormatter.h"
@@ -80,7 +81,7 @@ public:
         for (int amount = (int) this->currentCapacity; amount <= this->maxCapacity; amount += fillSpeed) {
             this->currentCapacity = amount;
             statusCallback(amount);
-            usleep(15 * 5000 * 10);
+            millisleep(150);
         }
 
         this->currentCapacity = this->maxCapacity;

@@ -139,7 +139,7 @@ void CoffeeMaker::brew() {
     while (this->carafe.getCurrentCapacity() < this->carafe.getMaxCapacity()) {
         bar.set_progress((float) (this->carafe.getCurrentCapacity() + fillAmount));
         this->carafe.brewFrom((Tank &) (boiler), fillAmount);
-        usleep(15 * 5000 * 10);
+        millisleep(150);
     }
 
     CoffeeMaker::resetConsole();

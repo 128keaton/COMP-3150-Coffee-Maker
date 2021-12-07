@@ -5,7 +5,7 @@
 #ifndef COFFEEMAKER_HEATER_H
 #define COFFEEMAKER_HEATER_H
 
-#include <unistd.h>
+#include "../sleep.h"
 #include <string>
 #include <functional>
 #include <cmath>
@@ -47,7 +47,7 @@ struct Heater {
             this->temperatureValue = nextTemp;
 
             // Sleep for "realness"
-            usleep(15 * 5000 * (useconds_t) speed);
+            millisleep(75 * speed);
         }
 
         // Finally, set our heaterRelay to off (false)
