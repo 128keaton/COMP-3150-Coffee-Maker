@@ -23,8 +23,7 @@ public:
      * @param stateChanged - Callback Lambda for when the HeaterState has updated
      * @param maxTemperature - Max temperature this device can reach
      */
-    explicit Heatable(const function<void(HeaterState)> &stateChanged, double maxTemperature = 100) :
-            StateChanges(stateChanged) {
+    explicit Heatable(double maxTemperature = 100) : StateChanges() {
         this->maxTemperature = maxTemperature;
         this->stateUpdated(
                 {
@@ -32,6 +31,24 @@ public:
                         0.0
                 }
         );
+
+        this->heaterSensor.updated = [this](double temperature) {
+            this->stateUpdated(
+                    {
+                            this->heaterRelay.get(),
+                            temperature
+                    }
+            );
+        };
+
+        this->heaterRelay.updated = [this](bool isHeating) {
+            this->stateUpdated(
+                    {
+                            isHeating,
+                            this->heaterSensor.get()
+                    }
+            );
+        };
     }
 
     /**
@@ -108,27 +125,14 @@ private:
     }
 
     // Readable<double> sensor representing the temperature probe in the device
-    Readable<double> heaterSensor = Readable<double>(0, [this](double temperature) {
-        this->stateUpdated(
-                {
-                        this->heaterRelay.get(),
-                        temperature
-                }
-        );
-    });
+    Readable<double> heaterSensor = Readable<double>(0);
 
     // Readable<bool> relay representing the heater circuit relay in the device
     // Relays are typically used on high-amperage devices
-    Readable<bool> heaterRelay = Readable<bool>(false, [this](bool isHeating) {
-        this->stateUpdated(
-                {
-                        isHeating,
-                        this->heaterSensor.get()
-                }
-        );
-    });
+    Readable<bool> heaterRelay = Readable<bool>(false);
 
     friend class Boiler;
+
 private:
     double maxTemperature;
 };

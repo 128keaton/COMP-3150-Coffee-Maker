@@ -14,14 +14,6 @@ class StateChanges {
 public:
 
     /**
-     * StateChanges constructor
-     * @param stateChanged - A Lambda callback with the T value as the only parameter
-     */
-    explicit StateChanges(const function<void(T)> stateChanged) {
-        this->stateFunction = stateChanged;
-    }
-
-    /**
      * Returns the current state
      * @return
      */
@@ -29,9 +21,10 @@ public:
         return this->currentState;
     }
 
+    function<void(T)> stateFunction = nullptr;
+
 private:
     T currentState;
-    function<void(T)> stateFunction = nullptr;
 
 protected:
     /**

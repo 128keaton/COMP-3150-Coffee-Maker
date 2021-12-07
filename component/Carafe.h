@@ -12,18 +12,31 @@
 
 class Carafe : public Fillable, public StateChanges<CarafeState> {
 public:
-    explicit Carafe(const function<void(CarafeState)> &stateChanged) : Fillable(100, [this](double coffeeLevel) {
-        const bool carafeAvailable = this->carafeSensor.get();
+    explicit Carafe(const function<void(CarafeState)> &stateChanged) : Fillable(100), StateChanges<CarafeState>() {
+        this->carafeSensor.updated = [this](bool isAvailable) {
+            this->stateUpdated(
+                    {
+                            isAvailable,
+                            this->get(),
+                    }
+            );
+        };
 
-        this->stateUpdated(
-                {
-                        carafeAvailable,
-                        coffeeLevel,
-                }
-        );
-    }), StateChanges<CarafeState>(stateChanged) {}
+        this->updated = [this](double coffeeLevel) {
+            const bool carafeAvailable = this->carafeSensor.get();
 
-    double & currentCapacity() {
+            this->stateUpdated(
+                    {
+                            carafeAvailable,
+                            coffeeLevel,
+                    }
+            );
+        };
+
+        this->stateFunction = stateChanged;
+    }
+
+    double &currentCapacity() {
         return this->get();
     }
 
@@ -35,14 +48,7 @@ public:
         this->carafeSensor.set(false);
     }
 
-    Readable<bool> carafeSensor = Readable<bool>(false, [this](bool isAvailable) {
-        this->stateUpdated(
-                {
-                        isAvailable,
-                        this->get(),
-                }
-        );
-    });
+    Readable<bool> carafeSensor = Readable<bool>(false);
 };
 
 #endif //COFFEEMAKER_CARAFE_H

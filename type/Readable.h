@@ -14,13 +14,13 @@ template<typename T>
 class Readable {
 public:
 
+    function<void(T)> updated = nullptr;
+
     /**
      * Readable constructor
      * @param initialValue - T value representing the initial value of T
-     * @param updated - Lambda with the new T value passed
      */
-    explicit Readable(T initialValue, const function<void(T)> updated) {
-        this->updated = updated;
+    explicit Readable(T initialValue) {
         this->value = initialValue;
         this->set(initialValue);
     }
@@ -47,8 +47,6 @@ public:
 
 private:
     T value;
-    function<void(T)> updated = nullptr;
-
 };
 
 #endif //COFFEEMAKER_READABLE_H

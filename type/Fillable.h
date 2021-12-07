@@ -17,9 +17,8 @@ public:
     /**
      * Fillable constructor
      * @param maxCapacity - Double value representing the max capacity of this Fillable
-     * @param updated - Lambda callback with a double parameter representing the liquid level
      */
-    explicit Fillable(double maxCapacity, const function<void(double)> &updated) : Readable(0.0, updated) {
+    explicit Fillable(double maxCapacity) : Readable(0.0) {
         this->maxCapacity = maxCapacity;
         this->empty();
     }
@@ -80,9 +79,9 @@ public:
     virtual /**
      * Fill this Fillable (in an emulated way)
      * @param statusCallback - Lambda with a double parameter representing the current fluid level
-     * @param fillSpeed - How fast you want to fill this bad boy up, defaults to 10
+     * @param fillSpeed - How fast you want to fill this bad boy up
      */
-    void fill(const function<void(double)> &statusCallback, int fillSpeed = 10) {
+    void fill(const function<void(double)> &statusCallback, int fillSpeed) {
         for (int amount = (int) this->get(); amount <= this->maxCapacity; amount += fillSpeed) {
             this->set(amount);
             statusCallback(amount);

@@ -13,45 +13,40 @@
 
 const double HEATER_MAX_TEMP = 100.0;
 
-class Boiler : public Fillable, public Heatable, public StateChanges<BoilerState> {
+class Boiler : public Fillable, public Heatable {
 public:
-    explicit Boiler(const function<void(BoilerState)> &stateChanged, double maxCapacity = 300) :
-            Heatable([this](HeaterState heaterState) {
-                const BoilerState currentState = this->getState();
 
-                this->stateUpdated(
-                        {
-                                heaterState.heating,
-                                heaterState.currentTemperature,
-                                currentState.waterLevel
-                        }
-                );
+    function<void(BoilerState)> boilerStateFunction = nullptr;
 
-                this->set(currentState.waterLevel);
-            }),
-            Fillable(maxCapacity, [this](double waterLevel) {
-                HeaterState state = this->getHeaterState();
+    using StateChanges<HeaterState>::stateFunction;
 
-                this->stateUpdated(
-                        {
-                                state.heating,
-                                (waterLevel == 0.0 ? 0.0 : state.currentTemperature),
-                                waterLevel
-                        }
-                );
-            }),
-            StateChanges<BoilerState>(stateChanged) {
-        this->stateUpdated(
-                {
-                        false,
-                        0.0,
-                        0.0
-                }
-        );
+    explicit Boiler(double maxCapacity = 300) :
+            Heatable(),
+            Fillable(maxCapacity) {
+
+        this->stateFunction = [this](HeaterState heaterState) {
+            this->set(this->boilerState.waterLevel);
+        };
+
+        this->updated = [this](double waterLevel) {
+            HeaterState state = this->getHeaterState();
+
+            this->stateUpdated(
+                    {
+                            state.heating,
+                            (waterLevel == 0.0 ? 0.0 : state.currentTemperature),
+                    }
+            );
+
+            this->boilerStateUpdated(
+                    {
+                            state.heating,
+                            state.currentTemperature,
+                            waterLevel
+                    }
+            );
+        };
     }
-
-    using StateChanges<BoilerState>::stateUpdated;
-    using StateChanges<BoilerState>::getState;
 
     bool contentsHeated() {
         return this->getHeaterState().currentTemperature == HEATER_MAX_TEMP;
@@ -60,6 +55,20 @@ public:
     void fill(const function<void(double)> &statusCallback, int fillSpeed) override {
         Fillable::fill(statusCallback, fillSpeed);
         this->heaterSensor.set(0.0);
+    }
+
+    BoilerState &getBoilerState() {
+        return this->boilerState;
+    }
+
+private:
+    BoilerState boilerState = {};
+
+    void boilerStateUpdated(BoilerState state) {
+        this->boilerState = state;
+        if (this->boilerStateFunction != nullptr) {
+            this->boilerStateFunction(state);
+        }
     }
 };
 

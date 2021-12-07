@@ -8,6 +8,10 @@
 
 
 CoffeeMaker::CoffeeMaker() {
+    this->boiler.boilerStateFunction = [this](BoilerState state) {
+        this->currentState = this->updateState(this->carafe.getState(), state);
+    };
+
     this->currentState = WAITING;
     this->carafe.empty();
 }

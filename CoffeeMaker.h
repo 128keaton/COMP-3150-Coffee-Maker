@@ -38,12 +38,10 @@ private:
 
     CoffeeMakerState updateState(CarafeState carafeState, BoilerState boilerState);
 
-    Boiler boiler = Boiler([](BoilerState state) {
-     //   this->currentState = this->updateState(this->carafe.getState(), state);
-    });
+    Boiler boiler = Boiler();
 
-    Carafe carafe = Carafe([](CarafeState state) {
-     //   this->currentState = this->updateState(state, this->boiler.getState());
+    Carafe carafe = Carafe([this](CarafeState state) {
+       this->currentState = this->updateState(state, this->boiler.getBoilerState());
     });
 };
 
