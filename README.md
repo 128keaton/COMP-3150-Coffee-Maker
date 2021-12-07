@@ -40,3 +40,7 @@ $ g++  -o ./CoffeeMaker -std=c++20  -pthread  main.cpp CoffeeMaker.cpp
 ```
 
 The executable should be available as `CoffeeMaker`
+
+## Credits
+
+[p-ranav/indicators](https://github.com/p-ranav/indicators) - Used for the progress bars
