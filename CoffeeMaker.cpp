@@ -22,7 +22,7 @@ void CoffeeMaker::updateState() {
     auto determineState = [this]() -> CoffeeMakerState {
         if (!this->carafe.isAvailable()) {
             return CARAFE_MISSING;
-        } else if (this->carafe.getCurrentCapacity() == this->carafe.getMaxCapacity()) {
+        } else if (this->carafe.getCurrentCapacity() > 0) {
             return CARAFE_FULL;
         } else if (this->boiler.getWaterLevel() == 0) {
             return BOILER_LOW;
