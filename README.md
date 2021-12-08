@@ -27,7 +27,7 @@ $ make
 Which should result in the following output:
 ```text
 rm -f CoffeeMaker
-g++ -std=c++20  -pthread sleep.cpp main.cpp CoffeeMaker.cpp -o CoffeeMaker
+g++ -std=c++20 sleep.cpp main.cpp CoffeeMaker.cpp -o CoffeeMaker
 ```
 
 The executable should be available as `CoffeeMaker`
@@ -36,7 +36,7 @@ The executable should be available as `CoffeeMaker`
 
 Inside the source repository, you should be able to run `g++` like shown:
 ```shell
-$ g++  -o ./CoffeeMaker -std=c++20  -pthread  main.cpp CoffeeMaker.cpp 
+$ g++  -o ./CoffeeMaker -std=c++20 sleep.cpp main.cpp CoffeeMaker.cpp 
 ```
 
 The executable should be available as `CoffeeMaker`
